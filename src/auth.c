@@ -70,12 +70,12 @@ static void auth_thread_entry(void *p1, void *p2, void *p3)
 
 	if (psa_crypto_init() != PSA_SUCCESS) {
 		LOG_ERR("PSA Crypto init failed");
-		return 0;
+		return;
 	}
 
 	if (!device_is_ready(pn532_dev)) {
 		LOG_ERR("PN532 device not ready");
-		return 0;
+		return;
 	}
 
 	LOG_INF("System ready. Waiting for NFC target...");

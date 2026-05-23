@@ -11,11 +11,8 @@ endif()
 target_sources(app PRIVATE
     src/main.c
     src/web.c
+    src/auth.c
 )
-
-zephyr_sources_ifdef(APP_AUTH_ENABLED src/auth.c)
-zephyr_sources_ifdef(APP_WEB_ENABLED src/web.c)
-zephyr_sources_ifdef(APP_SOCKET_SERVER_ENABLED src/socket_server.c)
 
 zephyr_linker_sources(SECTIONS sections-rom.ld)
 zephyr_linker_section(NAME http_resource_desc_web_service KVMA RAM_REGION GROUP RODATA_REGION)
