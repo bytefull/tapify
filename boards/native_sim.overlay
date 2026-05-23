@@ -1,9 +1,9 @@
-// &uart1 {
-//     status = "okay";
-//     compatible = "zephyr,native-tty-uart";
-//     current-speed = <115200>;
-//     serial-port = "/dev/ttyUSB0";
-//     pn532 {
-//         compatible = "nxp,pn532";
-//     };
-// };
+&uart1 {
+    status = "okay";
+    compatible = "zephyr,native-tty-uart";
+    current-speed = <115200>;
+    serial-port = "/dev/ttyUSB0";
+    pn532 {
+        compatible = "nxp,pn532";
+    };
+};
