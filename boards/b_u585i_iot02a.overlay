@@ -6,3 +6,10 @@
         compatible = "nxp,pn532";
     };
 };
+
+/ {
+    cdc_ncm_eth0: cdc_ncm_eth0 {
+        compatible = "zephyr,cdc-ncm-ethernet";
+        remote-mac-address = "00005E005301";
+    };
+};
