@@ -13,6 +13,9 @@
 LOG_MODULE_REGISTER(web, LOG_LEVEL_DBG);
 
 #include "net_sample_common.h"
+#ifdef CONFIG_USB_DEVICE_STACK_NEXT
+#include "sample_usbd.h"
+#endif /* CONFIG_USB_DEVICE_STACK_NEXT */
 
 static void web_thread_entry(void *p1, void *p2, void *p3);
 K_THREAD_DEFINE(web_thread, 4096, web_thread_entry, NULL, NULL, NULL, 8, 0, 0);
@@ -202,6 +205,19 @@ static void web_thread_entry(void *p1, void *p2, void *p3)
 	ARG_UNUSED(p1);
 	ARG_UNUSED(p2);
 	ARG_UNUSED(p3);
+
+	/* Initialize USB Device */
+	IF_ENABLED(CONFIG_USB_DEVICE_STACK_NEXT, ({
+		struct usbd_context *sample_usbd = sample_usbd_init_device(NULL);
+		if (sample_usbd == NULL) {
+			LOG_ERR("Failed to initialize USB device");
+			return;
+		}
+		if (usbd_enable(sample_usbd) < 0) {
+			LOG_ERR("Failed to enable USB device");
+			return;
+		}
+	}));
 
 	/* Block thread to wait for getting an IP address from the network */
 	wait_for_network();
