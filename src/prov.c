@@ -12,7 +12,7 @@ LOG_MODULE_REGISTER(prov, LOG_LEVEL_DBG);
 #include "pn532.h"
 
 static const struct device *const longpress_dev = DEVICE_DT_GET(DT_PATH(longpress));
-static const struct device *const buttons_dev = DEVICE_DT_GET(DT_PATH(buttons));
+static const struct device *const prov_buttons_dev = DEVICE_DT_GET(DT_ALIAS(prov_buttons));
 
 static void prov_thread_entry(void *p1, void *p2, void *p3);
 static void prov_longpress_cb(struct input_event *evt, void *user_data);
@@ -37,6 +37,8 @@ static void prov_thread_entry(void *p1, void *p2, void *p3)
 
 static void prov_longpress_cb(struct input_event *evt, void *user_data)
 {
+	ARG_UNUSED(user_data);
+
 	LOG_DBG("type=%d code=%d value=%d sync=%d", evt->type, evt->code, evt->value, evt->sync);
 
 	if (!evt->sync) {
@@ -45,10 +47,6 @@ static void prov_longpress_cb(struct input_event *evt, void *user_data)
 	if (evt->type != INPUT_EV_KEY) {
 		return;
 	}
-	if (evt->value == 0) {
-		return; /* ignore key-up from longpress driver */
-	}
-
 	switch (evt->code) {
 	case INPUT_BTN_0:
 		LOG_INF("Long press: button %i", evt->code);
@@ -61,12 +59,16 @@ static void prov_longpress_cb(struct input_event *evt, void *user_data)
  */
 static int prov_cmd_fake_longpress(const struct shell *sh, size_t argc, char **argv)
 {
+	ARG_UNUSED(sh);
+	ARG_UNUSED(argc);
+	ARG_UNUSED(argv);
+
 	/* Press */
-	input_report_key(buttons_dev, INPUT_BTN_0, 1, true, K_NO_WAIT);
+	input_report_key(prov_buttons_dev, INPUT_BTN_0, 1, true, K_NO_WAIT);
 	/* Wait */
 	k_msleep(2100);
 	/* Release */
-	input_report_key(buttons_dev, INPUT_BTN_0, 0, true, K_NO_WAIT);
+	input_report_key(prov_buttons_dev, INPUT_BTN_0, 0, true, K_NO_WAIT);
 
 	return 0;
 }
