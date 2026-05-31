@@ -16,6 +16,7 @@ target_sources(app PRIVATE
     src/main.c
     src/web.c
     src/auth.c
+    src/prov.c
 )
 
 zephyr_linker_sources(SECTIONS sections-rom.ld)

@@ -160,7 +160,7 @@ static int led_request_handler(struct http_client_ctx *client, enum http_transac
 
 		/* Reset on abort/complete */
 		if ((status == HTTP_SERVER_TRANSACTION_ABORTED) ||
-			(status == HTTP_SERVER_TRANSACTION_COMPLETE)) {
+		    (status == HTTP_SERVER_TRANSACTION_COMPLETE)) {
 			cursor = 0;
 			return 0;
 		}

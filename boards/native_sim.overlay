@@ -1,3 +1,24 @@
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/ {
+    buttons {
+        compatible = "gpio-keys";
+
+        button0: button_0 {
+            gpios = <&gpio0 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "Push button switch 0";
+            zephyr,code = <INPUT_BTN_0>;
+        };
+    };
+
+    longpress {
+        compatible = "zephyr,input-longpress";
+        input-codes = <INPUT_BTN_0>;
+        long-codes   = <INPUT_BTN_0>;
+        long-delay-ms = <2000>;
+    };
+};
+
 &uart1 {
     status = "okay";
     compatible = "zephyr,native-tty-uart";
