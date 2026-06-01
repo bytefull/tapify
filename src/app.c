@@ -7,14 +7,8 @@
 #include <zephyr/shell/shell.h>
 #include <zephyr/settings/settings.h>
 #include <zephyr/storage/flash_map.h>
-#ifdef CONFIG_SETTINGS_FILE
-#include <zephyr/fs/fs.h>
-#include <zephyr/fs/littlefs.h>
-#endif /* CONFIG_SETTINGS_FILE */
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
-
-#include "pn532.h"
 
 #define STORAGE_PARTITION_ID PARTITION_ID(storage_partition)
 
@@ -32,7 +26,7 @@ SHELL_CMD_REGISTER(app_fake_provision, NULL, "Fake device provisioning", app_cmd
 SETTINGS_STATIC_HANDLER_DEFINE(app, APP_SETTINGS_KEY, NULL, app_settings_set, NULL,
 			       app_settings_export);
 
-static uint8_t device_is_provisioned = false;
+static uint8_t device_is_provisioned = APP_DEFAULT_PROVISIONED_VALUE;
 
 static void app_thread_entry(void *p1, void *p2, void *p3)
 {
@@ -43,22 +37,6 @@ static void app_thread_entry(void *p1, void *p2, void *p3)
 	int ret;
 
 	LOG_INF("Application thread started...");
-#ifdef CONFIG_SETTINGS_FILE
-	FS_LITTLEFS_DECLARE_DEFAULT_CONFIG(cstorage);
-
-	/* mounting info */
-	static struct fs_mount_t littlefs_mnt = {.type = FS_LITTLEFS,
-						 .fs_data = &cstorage,
-						 .storage_dev = (void *)STORAGE_PARTITION_ID,
-						 .mnt_point = "/settings"};
-
-	ret = fs_mount(&littlefs_mnt);
-	if (ret != 0) {
-		LOG_ERR("mounting littlefs error: [%d]", ret);
-		return;
-	}
-	LOG_INF("FS initialized: OK");
-#endif /* CONFIG_SETTINGS_FILE */
 
 	ret = settings_subsys_init();
 	if (ret) {
