@@ -10,8 +10,6 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 
-#define STORAGE_PARTITION_ID PARTITION_ID(storage_partition)
-
 #define APP_SETTINGS_KEY              "app"
 #define APP_SETTINGS_PROV_KEY         "app/provisioned"
 #define APP_DEFAULT_PROVISIONED_VALUE 0
