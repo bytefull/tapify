@@ -22,7 +22,6 @@ manifest:
           - hal_stm32
           - tf-psa-crypto
           - mbedtls
-          - littlefs
 
     - name: pn532
       remote: bytefull
