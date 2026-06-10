@@ -4,6 +4,7 @@
  */
 
 #include <zephyr/kernel.h>
+#include <zephyr/drivers/buzzer.h>
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(auth, LOG_LEVEL_DBG);
 
@@ -62,6 +63,9 @@ static void auth_thread_entry(void *p1, void *p2, void *p3)
 	ARG_UNUSED(p2);
 	ARG_UNUSED(p3);
 
+#if DT_HAS_ALIAS(buzzer0)
+	const struct device *buzzer_dev = DEVICE_DT_GET(DT_ALIAS(buzzer0));
+#endif
 	const struct device *pn532_dev = DEVICE_DT_GET_ONE(nxp_pn532);
 	uint8_t nonce[NONCE_SIZE] = {0};
 	uint8_t challenge_apdu[sizeof(CHALLENGE_APDU_HEADER) + sizeof(nonce)] = {0};
@@ -72,6 +76,14 @@ static void auth_thread_entry(void *p1, void *p2, void *p3)
 		LOG_ERR("PSA Crypto init failed");
 		return;
 	}
+
+#if DT_HAS_ALIAS(buzzer0)
+	if (!device_is_ready(buzzer_dev)) {
+		LOG_ERR("Buzzer device %s not ready", buzzer_dev->name);
+		return;
+	}
+	buzzer_set_volume(buzzer_dev, 50);
+#endif
 
 	if (!device_is_ready(pn532_dev)) {
 		LOG_ERR("PN532 device not ready");
@@ -150,12 +162,17 @@ static void auth_thread_entry(void *p1, void *p2, void *p3)
 
 		if (verify_android_signature(nonce, signature, sig_len) < 0) {
 			LOG_ERR("AUTH FAILED (signature invalid)");
+#if DT_HAS_ALIAS(buzzer0)
+			buzzer_beep(buzzer_dev, 2000);
+#endif
 			continue;
 		}
 
 		LOG_INF("AUTH SUCCESS (verified signature)");
-
-		k_msleep(2000);
+#if DT_HAS_ALIAS(buzzer0)
+		buzzer_beep(buzzer_dev, 1000);
+#endif
+		k_msleep(5000);
 	}
 }
 
