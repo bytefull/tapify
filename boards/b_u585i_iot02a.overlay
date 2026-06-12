@@ -1,6 +1,12 @@
 #include <zephyr/dt-bindings/input/input-event-codes.h>
 
 / {
+
+	buzzer: buzzer {
+		compatible = "pwm-buzzer";
+		pwms = <&pwm4 1 PWM_HZ(2700) PWM_POLARITY_NORMAL>;
+	};
+
     cdc_ncm_eth0: cdc_ncm_eth0 {
         compatible = "zephyr,cdc-ncm-ethernet";
         remote-mac-address = "00005E005301";
@@ -24,6 +30,7 @@
     };
 
     aliases {
+		buzzer0 = &buzzer;
         prov-buttons = &buttons;
     };
 };

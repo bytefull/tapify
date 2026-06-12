@@ -25,7 +25,7 @@ manifest:
 
     - name: pn532
       remote: bytefull
-      revision: main
+      revision: london-meetup
       repo-path: pn532
       path: dependencies/modules/pn532
       import: true
