@@ -1,14 +1,16 @@
 #!/bin/bash
 set -e
 
+sudo apt-get update && sudo apt-get install -y alsa-utils
+
+sudo /opt/python/venv/bin/python3 -m pip install --upgrade pip
+
 west init -l application
 west update
 west zephyr-export
 
 sudo /opt/python/venv/bin/pip install \
     -r /workdir/dependencies/zephyr/scripts/requirements.txt
-
-sudo apt install -y alsa-utils
 
 sudo npm install -g \
     purgecss \
