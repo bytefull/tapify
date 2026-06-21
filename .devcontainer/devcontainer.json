@@ -10,6 +10,7 @@
     "--privileged",
     "--network=host",
     "--device=/dev/bus/usb:/dev/bus/usb",
+    "--device=/dev/snd",
     "--cap-add=NET_ADMIN"
   ],
   "remoteUser": "user",

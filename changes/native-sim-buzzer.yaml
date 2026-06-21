@@ -1,0 +1,44 @@
+# Copyright (c) 2026 Bayrem Gharsellaoui
+# SPDX-License-Identifier: Apache-2.0
+
+title: native_sim software buzzer
+
+description: |
+  Virtual buzzer for the native_sim board.
+
+  On Linux hosts the driver attempts to drive the PC speaker through the
+  kernel's evdev input interface
+  (/dev/input/by-path/platform-pcspkr-event-spkr).  This requires the
+  "pcspkr" kernel module to be loaded:
+
+      modprobe pcspkr
+
+  and the running user to have read/write access to the evdev node (most
+  desktop distributions grant this automatically to logged-in users via
+  udev/logind; on others add yourself to the "input" group).
+
+  When the evdev node is not accessible the driver falls back to the POSIX
+  terminal bell ('\a' on stderr): audible feedback is preserved at the cost
+  of frequency and volume control.
+
+  On non-Linux POSIX hosts only the terminal-bell fallback is available.
+
+  Volume is accepted by the API and stored, but current back-ends cannot
+  honour it — any non-zero value is treated as full volume.
+
+  Example devicetree node (already present in the native_sim overlay):
+
+      buzzer0: buzzer {
+          compatible = "zephyr,buzzer-native-sim";
+          status = "okay";
+      };
+
+      aliases {
+          buzzer0 = &buzzer0;
+      };
+
+compatible: "zephyr,buzzer-native-sim"
+
+include: base.yaml
+
+# No hardware-specific properties are required; the driver is self-contained.
