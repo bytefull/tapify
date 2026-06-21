@@ -78,6 +78,7 @@ static void auth_thread_entry(void *p1, void *p2, void *p3)
 	}
 
 #if DT_HAS_ALIAS(buzzer0)
+	LOG_INF("Buzzer device: %s", buzzer_dev->name);
 	if (!device_is_ready(buzzer_dev)) {
 		LOG_ERR("Buzzer device %s not ready", buzzer_dev->name);
 		return;
