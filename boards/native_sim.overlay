@@ -1,3 +1,28 @@
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/ {
+    buttons: gpio_keys {
+        compatible = "gpio-keys";
+
+        user_button: button {
+            label = "User";
+            gpios = <&gpio0 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+            zephyr,code = <INPUT_BTN_0>;
+        };
+    };
+
+    longpress {
+        compatible = "zephyr,input-longpress";
+        input-codes = <INPUT_BTN_0>;
+        long-codes = <INPUT_BTN_0>;
+        long-delay-ms = <2000>;
+    };
+
+    aliases {
+        prov-buttons = &buttons;
+    };
+};
+
 &uart1 {
     status = "okay";
     compatible = "zephyr,native-tty-uart";
@@ -6,4 +31,8 @@
     pn532 {
         compatible = "nxp,pn532";
     };
+};
+
+&buzzer0 {
+    status = "okay";
 };

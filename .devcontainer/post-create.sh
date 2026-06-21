@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+sudo usermod -aG audio user
+
+sudo apt-get update && sudo apt-get install -y alsa-utils
+
+sudo /opt/python/venv/bin/python3 -m pip install --upgrade pip
+
 west init -l application
 west update
 west zephyr-export

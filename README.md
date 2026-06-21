@@ -2,6 +2,17 @@
 
 This is a PoC (Proof of Concept) for establishing communication between an STM32+PN532 NFC module and an Android phone.
 
+## Using host file system with native_sim
+
+```bash
+/workdir/application$ rm -rf /tmp/zephyr_settings
+/workdir/application$ mkdir -p /tmp/zephyr_settings
+/workdir/application$ rm -rf build/
+/workdir/application$ rm -rf flash.bin
+/workdir/application$ west build -b native_sim -d build/
+/workdir/application$ ./build/zephyr/zephyr.exe -volume=/tmp/zephyr_settings:/settings
+```
+
 ## ✅ TODO
 
 - [x] Make signature verification works

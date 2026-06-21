@@ -1,15 +1,44 @@
-&usart3 {
-    status = "okay";
-    current-speed = <115200>;
-
-    pn532 {
-        compatible = "nxp,pn532";
-    };
-};
+#include <zephyr/dt-bindings/input/input-event-codes.h>
 
 / {
+
+	buzzer: buzzer {
+		compatible = "pwm-buzzer";
+		pwms = <&pwm4 1 PWM_HZ(2700) PWM_POLARITY_NORMAL>;
+	};
+
     cdc_ncm_eth0: cdc_ncm_eth0 {
         compatible = "zephyr,cdc-ncm-ethernet";
         remote-mac-address = "00005E005301";
+    };
+
+    buttons: gpio_keys {
+        compatible = "gpio-keys";
+
+        user_button: button {
+            label = "User";
+            gpios = <&gpioc 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+            zephyr,code = <INPUT_BTN_0>;
+        };
+    };
+
+    longpress {
+        compatible = "zephyr,input-longpress";
+        input-codes = <INPUT_BTN_0>;
+        long-codes = <INPUT_BTN_0>;
+        long-delay-ms = <2000>;
+    };
+
+    aliases {
+		buzzer0 = &buzzer;
+        prov-buttons = &buttons;
+    };
+};
+
+&usart3 {
+    status = "okay";
+    current-speed = <115200>;
+    pn532 {
+        compatible = "nxp,pn532";
     };
 };

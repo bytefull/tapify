@@ -13,9 +13,11 @@ if (CONFIG_USB_DEVICE_STACK_NEXT)
 endif()
 
 target_sources(app PRIVATE
-    src/main.c
-    src/web.c
+    # src/main.c
+    # src/web.c
     src/auth.c
+    # src/prov.c
+    # src/app.c
 )
 
 zephyr_linker_sources(SECTIONS sections-rom.ld)

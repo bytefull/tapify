@@ -1,0 +1,13 @@
+# Copyright (c) 2026 Bayrem Gharsellaoui
+# SPDX-License-Identifier: Apache-2.0
+
+config BUZZER_NATIVE_SIM
+	bool "native_sim software buzzer driver"
+	default y
+	depends on BUZZER
+	help
+	  Enable the native_sim buzzer back-end.
+	  This drives the PC speaker through the evdev interface
+	  (/dev/input/by-path/platform-pcspkr-event-spkr).
+	  When the evdev node is unavailable,
+	  it falls back to the POSIX terminal bell ('\a' written to stderr).
