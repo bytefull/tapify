@@ -32,10 +32,9 @@ struct state_machine {
 } app_state_machine;
 
 enum app_states {
-	STATE_IDLE,
-	STATE_PROV,
-	STATE_AUTH,
-	STATE_ERROR,
+	STATE_UNPROVISIONED,
+	STATE_NORMAL,
+	STATE_ENROLMENT,
 };
 
 static void app_thread_entry(void *p1, void *p2, void *p3);
@@ -45,34 +44,25 @@ static void app_long_press_cb(struct input_event *evt, void *user_data);
 static int app_cmd_fake_provision(const struct shell *sh, size_t argc, char **argv);
 static int app_cmd_fake_longpress(const struct shell *sh, size_t argc, char **argv);
 
-static void state_idle_entry(void *obj);
-static enum smf_state_result state_idle_run(void *obj);
-static void state_idle_exit(void *obj);
+static void state_unprovisioned_entry(void *obj);
+static enum smf_state_result state_unprovisioned_run(void *obj);
+static void state_unprovisioned_exit(void *obj);
 
-static void state_prov_entry(void *obj);
-static enum smf_state_result state_prov_run(void *obj);
-static void state_prov_exit(void *obj);
+static void state_normal_entry(void *obj);
+static enum smf_state_result state_normal_run(void *obj);
+static void state_normal_exit(void *obj);
 
-static void state_auth_entry(void *obj);
-static enum smf_state_result state_auth_run(void *obj);
-static void state_auth_exit(void *obj);
-
-static void state_error_entry(void *obj);
-static enum smf_state_result state_error_run(void *obj);
-static void state_error_exit(void *obj);
+static void state_enrolment_entry(void *obj);
+static enum smf_state_result state_enrolment_run(void *obj);
+static void state_enrolment_exit(void *obj);
 
 static uint8_t device_is_provisioned = APP_DEFAULT_PROVISIONED_VALUE;
 static const struct device *const longpress_dev = DEVICE_DT_GET(DT_PATH(longpress));
 static const struct device *const prov_buttons_dev = DEVICE_DT_GET(DT_ALIAS(prov_buttons));
 static const struct smf_state app_states[] = {
-	[STATE_IDLE] =
-		SMF_CREATE_STATE(state_idle_entry, state_idle_run, state_idle_exit, NULL, NULL),
-	[STATE_PROV] =
-		SMF_CREATE_STATE(state_prov_entry, state_prov_run, state_prov_exit, NULL, NULL),
-	[STATE_AUTH] =
-		SMF_CREATE_STATE(state_auth_entry, state_auth_run, state_auth_exit, NULL, NULL),
-	[STATE_ERROR] =
-		SMF_CREATE_STATE(state_error_entry, state_error_run, state_error_exit, NULL, NULL),
+	[STATE_UNPROVISIONED] = SMF_CREATE_STATE(state_unprovisioned_entry, state_unprovisioned_run, state_unprovisioned_exit, NULL, NULL),
+	[STATE_NORMAL] = SMF_CREATE_STATE(state_normal_entry, state_normal_run, state_normal_exit, NULL, NULL),
+	[STATE_ENROLMENT] = SMF_CREATE_STATE(state_enrolment_entry, state_enrolment_run, state_enrolment_exit, NULL, NULL),
 };
 
 K_THREAD_DEFINE(app_thread, 4096, app_thread_entry, NULL, NULL, NULL, 8, 0, 0);
@@ -80,8 +70,7 @@ K_MSGQ_DEFINE(app_msgq, sizeof(struct smf_event), 8, 1);
 INPUT_CALLBACK_DEFINE(longpress_dev, app_long_press_cb, NULL);
 SHELL_CMD_REGISTER(app_fake_provision, NULL, "Fake device provisioning", app_cmd_fake_provision);
 SHELL_CMD_REGISTER(app_fake_longpress, NULL, "Fake long press", app_cmd_fake_longpress);
-SETTINGS_STATIC_HANDLER_DEFINE(app, APP_SETTINGS_KEY, NULL, app_settings_set, NULL,
-			       app_settings_export);
+SETTINGS_STATIC_HANDLER_DEFINE(app, APP_SETTINGS_KEY, NULL, app_settings_set, NULL, app_settings_export);
 
 static void app_thread_entry(void *p1, void *p2, void *p3)
 {
@@ -91,7 +80,7 @@ static void app_thread_entry(void *p1, void *p2, void *p3)
 	int ret;
 
 	LOG_INF("Application thread started...");
-	smf_set_initial(SMF_CTX(&app_state_machine), &app_states[STATE_IDLE]);
+	smf_set_initial(SMF_CTX(&app_state_machine), &app_states[STATE_UNPROVISIONED]);
 
 	ret = settings_subsys_init();
 	if (ret) {
@@ -106,10 +95,10 @@ static void app_thread_entry(void *p1, void *p2, void *p3)
 
 	if (device_is_provisioned) {
 		LOG_INF("Device is provisioned");
-		smf_set_state(SMF_CTX(&app_state_machine), &app_states[STATE_AUTH]);
+		smf_set_state(SMF_CTX(&app_state_machine), &app_states[STATE_NORMAL]);
 	} else {
 		LOG_WRN("Device is not provisioned");
-		smf_set_state(SMF_CTX(&app_state_machine), &app_states[STATE_PROV]);
+		smf_set_state(SMF_CTX(&app_state_machine), &app_states[STATE_UNPROVISIONED]);
 	}
 
 	while (1) {
@@ -133,8 +122,7 @@ static int app_settings_set(const char *key, size_t len, settings_read_cb read_c
 {
 	if (strcmp(key, "provisioned") == 0) {
 		if (len != sizeof(device_is_provisioned)) {
-			LOG_WRN("size mismatch for key '%s': stored %zu vs expected %zu", key, len,
-				sizeof(device_is_provisioned));
+			LOG_WRN("size mismatch for key '%s': stored %zu vs expected %zu", key, len, sizeof(device_is_provisioned));
 			return -EINVAL;
 		}
 		ssize_t ret =
@@ -145,8 +133,7 @@ static int app_settings_set(const char *key, size_t len, settings_read_cb read_c
 		}
 		if (ret == 0) {
 			/* key was deleted */
-			LOG_WRN("key '%s' deleted, resetting to default value: %d", key,
-				APP_DEFAULT_PROVISIONED_VALUE);
+			LOG_WRN("key '%s' deleted, resetting to default value: %d", key, APP_DEFAULT_PROVISIONED_VALUE);
 			device_is_provisioned = APP_DEFAULT_PROVISIONED_VALUE;
 		}
 		/* success */
@@ -211,8 +198,7 @@ static int app_cmd_fake_provision(const struct shell *sh, size_t argc, char **ar
 	}
 
 	LOG_INF("device_is_provisioned set to %d and persisted", device_is_provisioned);
-	smf_set_state(SMF_CTX(&app_state_machine),
-		      device_is_provisioned ? &app_states[STATE_AUTH] : &app_states[STATE_PROV]);
+	smf_set_state(SMF_CTX(&app_state_machine), device_is_provisioned ? &app_states[STATE_NORMAL] : &app_states[STATE_UNPROVISIONED]);
 
 	return 0;
 }
@@ -233,42 +219,27 @@ static int app_cmd_fake_longpress(const struct shell *sh, size_t argc, char **ar
 	return 0;
 }
 
-static void state_idle_entry(void *obj)
+static void state_unprovisioned_entry(void *obj)
 {
 	LOG_INF("%s", __func__);
 }
 
-static enum smf_state_result state_idle_run(void *obj)
+static enum smf_state_result state_unprovisioned_run(void *obj)
 {
 	return SMF_EVENT_PROPAGATE;
 }
 
-static void state_idle_exit(void *obj)
+static void state_unprovisioned_exit(void *obj)
 {
 	LOG_INF("%s", __func__);
 }
 
-static void state_prov_entry(void *obj)
+static void state_normal_entry(void *obj)
 {
 	LOG_INF("%s", __func__);
 }
 
-static enum smf_state_result state_prov_run(void *obj)
-{
-	return SMF_EVENT_PROPAGATE;
-}
-
-static void state_prov_exit(void *obj)
-{
-	LOG_INF("%s", __func__);
-}
-
-static void state_auth_entry(void *obj)
-{
-	LOG_INF("%s", __func__);
-}
-
-static enum smf_state_result state_auth_run(void *obj)
+static enum smf_state_result state_normal_run(void *obj)
 {
 	enum smf_state_result ret;
 	struct state_machine *object = (struct state_machine *)obj;
@@ -276,7 +247,7 @@ static enum smf_state_result state_auth_run(void *obj)
 	switch (object->event.id) {
 	case EVENT_BUTTON_LONG_PRESS:
 		LOG_INF("EVENT_BUTTON_LONG_PRESS");
-		smf_set_state(SMF_CTX(object), &app_states[STATE_PROV]);
+		smf_set_state(SMF_CTX(object), &app_states[STATE_UNPROVISIONED]);
 		ret = SMF_EVENT_HANDLED;
 		break;
 	case EVENT_BUTTON_SHORT_PRESS:
@@ -290,22 +261,22 @@ static enum smf_state_result state_auth_run(void *obj)
 	return ret;
 }
 
-static void state_auth_exit(void *obj)
+static void state_normal_exit(void *obj)
 {
 	LOG_INF("%s", __func__);
 }
 
-static void state_error_entry(void *obj)
+static void state_enrolment_entry(void *obj)
 {
 	LOG_INF("%s", __func__);
 }
 
-static enum smf_state_result state_error_run(void *obj)
+static enum smf_state_result state_enrolment_run(void *obj)
 {
 	return SMF_EVENT_PROPAGATE;
 }
 
-static void state_error_exit(void *obj)
+static void state_enrolment_exit(void *obj)
 {
 	LOG_INF("%s", __func__);
 }
