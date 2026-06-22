@@ -57,6 +57,7 @@ static enum smf_state_result state_enrolment_run(void *obj);
 static void state_enrolment_exit(void *obj);
 
 static uint8_t device_is_provisioned = APP_DEFAULT_PROVISIONED_VALUE;
+
 static const struct device *const longpress_dev = DEVICE_DT_GET(DT_PATH(longpress));
 static const struct device *const prov_buttons_dev = DEVICE_DT_GET(DT_ALIAS(prov_buttons));
 static const struct smf_state app_states[] = {
@@ -273,7 +274,17 @@ static void state_enrolment_entry(void *obj)
 
 static enum smf_state_result state_enrolment_run(void *obj)
 {
-	return SMF_EVENT_PROPAGATE;
+	enum smf_state_result ret;
+	struct state_machine *object = (struct state_machine *)obj;
+
+	switch (object->event.id) {
+	case EVENT_BUTTON_LONG_PRESS:
+	case EVENT_BUTTON_SHORT_PRESS:
+	default:
+		ret = SMF_EVENT_PROPAGATE;
+		break;
+	}
+	return ret;
 }
 
 static void state_enrolment_exit(void *obj)
