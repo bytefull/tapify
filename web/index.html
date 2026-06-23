@@ -1,73 +1,1360 @@
-<!doctype html>
-<html lang="en" data-bs-theme="auto">
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/bootstrap.purged.min.css">
-  <title>Dashboard</title>
-  <script>
-    (function () {
-      const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        document.documentElement.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
-      });
-    })();
-  </script>
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tapify — Admin Dashboard</title>
+<style>
+  :root {
+    --bg:       #0b0b0f;
+    --surface:  #13131a;
+    --surface2: #1c1c26;
+    --surface3: #242433;
+    --border:   rgba(255,255,255,0.07);
+    --text:     #f0f0f5;
+    --muted:    #7878a0;
+    --accent:   #2979ff;
+    --accent-d: #1a4db5;
+    --green:    #00e5a0;
+    --red:      #ff4d6d;
+    --yellow:   #ffd166;
+  }
 
+  :root.light {
+    --bg:       #f4f4f8;
+    --surface:  #ffffff;
+    --surface2: #f0f0f5;
+    --surface3: #e4e4ec;
+    --border:   rgba(0,0,0,0.08);
+    --text:     #0f0f1a;
+    --muted:    #7070a0;
+    --green:    #00b87a;
+    --red:      #e0314f;
+    --yellow:   #c89600;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s, border-color 0.2s, color 0.15s, box-shadow 0.2s; }
+  html { height: 100%; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+
+  .topbar-product {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .topbar-product span { color: var(--accent); }
+
+  .topbar-company {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .device-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  .btn-logout {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-logout:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+  .btn-open-gate {
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--green);
+    padding: 6px 13px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-open-gate:hover {
+    background: rgba(0,229,160,0.22);
+    border-color: rgba(0,229,160,0.5);
+  }
+
+  .btn-open-gate.triggered {
+    background: rgba(0,229,160,0.25);
+    border-color: var(--green);
+    animation: gate-pulse 0.4s ease;
+  }
+
+  @keyframes gate-pulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  .btn-theme {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .btn-theme:hover { color: var(--text); border-color: rgba(128,128,128,0.3); }
+
+  .btn-hamburger {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .btn-hamburger:hover { color: var(--text); background: var(--surface2); }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 200px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+    padding: 16px 0;
+    overflow: hidden;
+    transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .sidebar.collapsed {
+    width: 0;
+    padding: 0;
+    border-right: none;
+  }
+
+  .sidebar.collapsed .nav-item,
+  .sidebar.collapsed .nav-section,
+  .sidebar.collapsed .nav-badge { opacity: 0; }
+
+  .nav-section {
+    padding: 4px 12px 8px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 0;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+
+  .nav-item.active {
+    color: var(--accent);
+    background: rgba(41,121,255,0.08);
+    border-left-color: var(--accent);
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .page-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .page-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── STAT CARDS ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .stat-value.green { color: var(--green); }
+  .stat-value.red   { color: var(--red); }
+  .stat-value.blue  { color: var(--accent); }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .table-title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .search-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 12px;
+    padding: 6px 10px;
+    outline: none;
+    width: 180px;
+    transition: border-color 0.15s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 10px 18px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+
+  tbody td {
+    padding: 12px 18px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .cell-name { font-weight: 500; }
+
+  .cell-key {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge-green { background: rgba(0,229,160,0.12); color: var(--green); }
+  .badge-red   { background: rgba(255,77,109,0.12); color: var(--red); }
+  .badge-yellow{ background: rgba(255,209,102,0.12); color: var(--yellow); }
+  .badge-blue  { background: rgba(41,121,255,0.12); color: var(--accent); }
+
+  .badge-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover { background: var(--accent-d); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+  .btn-danger {
+    background: rgba(255,77,109,0.1);
+    color: var(--red);
+    border: 1px solid rgba(255,77,109,0.2);
+  }
+
+  .btn-danger:hover { background: rgba(255,77,109,0.2); }
+
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  .action-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .modal-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+
+  .form-group label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+
+  .form-group input,
+  .form-group select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus { border-color: var(--accent); }
+
+  .form-group select option { background: var(--surface); }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  /* ── ENROLL WAITING STATE ── */
+  .enroll-waiting {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0 8px;
+    gap: 12px;
+  }
+
+  .enroll-waiting.show { display: flex; }
+
+  .nfc-pulse {
+    width: 64px;
+    height: 64px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nfc-pulse-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent);
+    opacity: 0;
+    animation: pulse-ring 2s ease-out infinite;
+  }
+
+  .nfc-pulse-ring:nth-child(1) { width: 30px; height: 30px; animation-delay: 0s; }
+  .nfc-pulse-ring:nth-child(2) { width: 48px; height: 48px; animation-delay: 0.4s; }
+  .nfc-pulse-ring:nth-child(3) { width: 64px; height: 64px; animation-delay: 0.8s; }
+
+  @keyframes pulse-ring {
+    0%   { transform: scale(0.7); opacity: 0.7; }
+    100% { transform: scale(1.2); opacity: 0; }
+  }
+
+  .nfc-pulse-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--surface2);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    z-index: 1;
+  }
+
+  .enroll-waiting-text {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* ── LOG ── */
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .log-item {
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  .log-item:last-child { border-bottom: none; }
+  .log-item:hover { background: var(--surface2); }
+
+  .log-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .log-icon.success { background: rgba(0,229,160,0.1); }
+  .log-icon.denied  { background: rgba(255,77,109,0.1); }
+  .log-icon.enroll  { background: rgba(41,121,255,0.1); }
+
+  .log-name { font-size: 13px; font-weight: 500; }
+  .log-detail { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .log-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+  /* ── SETTINGS ── */
+  .settings-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .settings-section-title {
+    padding: 14px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .setting-row:last-child { border-bottom: none; }
+
+  .setting-label { font-size: 13px; font-weight: 500; }
+  .setting-desc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .setting-value {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 200;
+    max-width: 300px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-icon { font-size: 16px; }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+  .empty p { font-size: 13px; }
+
+  /* ── ENROLL MODE BANNER ── */
+  .enroll-banner {
+    display: none;
+    background: rgba(41,121,255,0.1);
+    border: 1px solid rgba(41,121,255,0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .enroll-banner.show { display: flex; }
+  .enroll-banner-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: blink 1s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .sidebar { width: 0; padding: 0; border-right: none; }
+    .main { padding: 16px; }
+  }
+</style>
+</head>
 <body>
-  <nav class="navbar border-bottom mb-4">
-    <div class="container">
-      <span class="navbar-brand fw-semibold">Access Control</span>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <button class="btn-hamburger" onclick="toggleSidebar()" title="Toggle sidebar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <div class="topbar-product">Tap<span>ify</span></div>
+    <div class="topbar-company">Admin · Front Door</div>
+  </div>
+  <div class="topbar-right">
+    <div class="device-status">
+      <div class="status-dot"></div>
+      Online
+    </div>
+    <button class="btn-open-gate" id="btn-open-gate" onclick="openModal('modal-open-gate')" title="Manually open gate for a guest">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Open gate
+    </button>
+    <button class="btn-theme" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+      <svg id="theme-icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="theme-icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <button class="btn-logout" onclick="showToast('👋', 'Logged out')">Log out</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section">Management</div>
+    <div class="nav-item active" onclick="navigate('users', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Members
+      <span class="nav-badge" id="members-count">4</span>
+    </div>
+    <div class="nav-item" onclick="navigate('log', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Access Log
+    </div>
+    <div class="nav-section">Device</div>
+    <div class="nav-item" onclick="navigate('settings', this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg>
+      Settings
     </div>
   </nav>
 
-  <div class="container">
-    <h6 class="text-uppercase text-secondary fw-semibold small mb-3">Controls</h6>
+  <!-- MAIN -->
+  <main class="main">
 
-    <div class="card border-0 shadow-sm mb-3">
-      <div class="card-body d-flex justify-content-between align-items-center py-3">
-        <div class="d-flex align-items-center gap-3">
+    <!-- ── MEMBERS PAGE ── -->
+    <div class="page active" id="page-users">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Members</div>
+          <div class="page-sub">Manage enrolled users and their access</div>
+        </div>
+        <button class="btn btn-primary" onclick="openEnrollModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Enroll member
+        </button>
+      </div>
 
-          <!-- lightbulb-fill (LED on) -->
-          <svg id="iconOn" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
-            fill="currentColor" class="text-warning d-none" viewBox="0 0 16 16">
-            <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0
-              0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0
-              0-.453-.618A5.98 5.98 0 0 1 2 6m3 8.5a.5.5 0 0 1
-              .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1
-              1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5"/>
-          </svg>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Total members</div>
+          <div class="stat-value blue">4</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active</div>
+          <div class="stat-value green">3</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Suspended</div>
+          <div class="stat-value red">1</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Expiring soon</div>
+          <div class="stat-value yellow">1</div>
+        </div>
+      </div>
 
-          <!-- lightbulb (LED off) -->
-          <svg id="iconOff" xmlns="http://www.w3.org/2000/svg" width="28" height="28"
-            fill="currentColor" class="text-secondary" viewBox="0 0 16 16">
-            <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0
-              0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0
-              1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-1
-              0 .5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0
-              1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2
-              6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83
-              12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/>
-          </svg>
+      <div id="enroll-banner" class="enroll-banner">
+        <div class="enroll-banner-dot"></div>
+        <span>Enrolment mode active — ask member to tap their phone on the reader</span>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="cancelEnroll()">Cancel</button>
+      </div>
 
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Enrolled members</div>
+          <input class="search-input" type="text" placeholder="Search members…" oninput="filterTable(this.value)">
+        </div>
+        <table id="members-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Public key</th>
+              <th>Expiry</th>
+              <th>Status</th>
+              <th>Last entry</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="members-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── LOG PAGE ── -->
+    <div class="page" id="page-log">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Access Log</div>
+          <div class="page-sub">All tap events on this device</div>
+        </div>
+        <button class="btn btn-ghost" onclick="showToast('📋', 'Log exported')">Export CSV</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Today</div>
+          <div class="stat-value blue">12</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Granted</div>
+          <div class="stat-value green">11</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Denied</div>
+          <div class="stat-value red">1</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Recent events</div>
+        </div>
+        <div class="log-list" id="log-list"></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS PAGE ── -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Settings</div>
+          <div class="page-sub">Device configuration</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Network</div>
+        <div class="setting-row">
           <div>
-            <div class="fw-semibold">LED</div>
-            <div class="text-secondary small" id="ledStatus">Off</div>
+            <div class="setting-label">WiFi network</div>
+            <div class="setting-desc">Currently connected access point</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="setting-value">GymNetwork_5G</span>
+            <button class="btn btn-ghost btn-sm" onclick="openModal('modal-wifi')">Change</button>
           </div>
         </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Device hostname</div>
+            <div class="setting-desc">Access dashboard at this address</div>
+          </div>
+          <span class="setting-value">tapify-frontdoor.local</span>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">IP address</div>
+            <div class="setting-desc">Current local IP</div>
+          </div>
+          <span class="setting-value">192.168.1.42</span>
+        </div>
+      </div>
 
-        <div class="form-check form-switch mb-0">
-          <input class="form-check-input" type="checkbox" role="switch"
-            id="ledSwitch" style="width:2.5em;height:1.25em">
+      <div class="settings-section">
+        <div class="settings-section-title">Security</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Admin password</div>
+            <div class="setting-desc">Used to log into this dashboard</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-password')">Change password</button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Recovery code</div>
+            <div class="setting-desc">One-time code set during provisioning</div>
+          </div>
+          <span class="badge badge-green">Set</span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Device info</div>
+        <div class="setting-row">
+          <div class="setting-label">Device name</div>
+          <span class="setting-value">Front Door</span>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">Firmware version</div>
+          <span class="setting-value">0.1.0-dev</span>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">Uptime</div>
+          <span class="setting-value" id="uptime">00:00:00</span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title" style="color: var(--red)">Danger zone</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Factory reset</div>
+            <div class="setting-desc">Wipes all members and config. Requires physical button confirmation.</div>
+          </div>
+          <button class="btn btn-danger btn-sm">Factory reset</button>
         </div>
       </div>
     </div>
+
+  </main>
+</div>
+
+<!-- ── ENROLL MODAL ── -->
+<div class="modal-overlay" id="modal-enroll">
+  <div class="modal">
+    <div class="modal-title">Enroll new member</div>
+    <div class="modal-sub">Enter member details, then have them tap their phone on the reader.</div>
+
+    <div id="enroll-form">
+      <div class="form-group">
+        <label>Full name</label>
+        <input type="text" id="enroll-name" placeholder="e.g. Jane Smith">
+      </div>
+      <div class="form-group">
+        <label>Membership expiry</label>
+        <input type="date" id="enroll-expiry">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-enroll')">Cancel</button>
+        <button class="btn btn-primary" onclick="startEnroll()">Start enrolment</button>
+      </div>
+    </div>
+
+    <div class="enroll-waiting" id="enroll-waiting">
+      <div class="nfc-pulse">
+        <div class="nfc-pulse-ring"></div>
+        <div class="nfc-pulse-ring"></div>
+        <div class="nfc-pulse-ring"></div>
+        <div class="nfc-pulse-icon">📱</div>
+      </div>
+      <div class="enroll-waiting-text">Waiting for member to tap phone…</div>
+      <button class="btn btn-ghost btn-sm" onclick="cancelEnroll()">Cancel</button>
+    </div>
   </div>
+</div>
 
-  <script src="/script.js"></script>
+<!-- ── EXTEND MODAL ── -->
+<div class="modal-overlay" id="modal-extend">
+  <div class="modal">
+    <div class="modal-title">Extend membership</div>
+    <div class="modal-sub" id="extend-member-name">–</div>
+    <div class="form-group">
+      <label>New expiry date</label>
+      <input type="date" id="extend-expiry">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-extend')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmExtend()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── WIFI MODAL ── -->
+<div class="modal-overlay" id="modal-wifi">
+  <div class="modal">
+    <div class="modal-title">Change WiFi network</div>
+    <div class="modal-sub">The device will reconnect. Dashboard may be briefly unavailable.</div>
+    <div class="form-group">
+      <label>Network name (SSID)</label>
+      <input type="text" placeholder="e.g. GymNetwork_5G">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" placeholder="WiFi password">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-wifi')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-wifi');showToast('📡','WiFi updated — reconnecting…')">Save & reconnect</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PASSWORD MODAL ── -->
+<div class="modal-overlay" id="modal-password">
+  <div class="modal">
+    <div class="modal-title">Change admin password</div>
+    <div class="modal-sub">You'll need to log in again after changing.</div>
+    <div class="form-group">
+      <label>Current password</label>
+      <input type="password" placeholder="Current password">
+    </div>
+    <div class="form-group">
+      <label>New password</label>
+      <input type="password" placeholder="New password">
+    </div>
+    <div class="form-group">
+      <label>Confirm new password</label>
+      <input type="password" placeholder="Confirm password">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-password')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-password');showToast('🔒','Password updated')">Update password</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── OPEN GATE MODAL ── -->
+<div class="modal-overlay" id="modal-open-gate">
+  <div class="modal">
+    <div class="modal-title">Open gate manually</div>
+    <div class="modal-sub">This will trigger the relay and open the door for approximately 5 seconds. Use this for guests or visitors. The event will be logged.</div>
+    <div class="form-group">
+      <label>Reason (optional)</label>
+      <input type="text" id="gate-reason" placeholder="e.g. Delivery, Guest, Staff">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-open-gate')">Cancel</button>
+      <button class="btn btn-primary" style="background:var(--green);color:#000;font-weight:700" onclick="triggerGate()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Confirm — open now
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon"></span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+  // ── OPEN GATE ──
+  function triggerGate() {
+    const reason = document.getElementById('gate-reason').value.trim() || 'Manual override';
+    closeModal('modal-open-gate');
+    document.getElementById('gate-reason').value = '';
+
+    // Visual feedback on button
+    const btn = document.getElementById('btn-open-gate');
+    btn.classList.add('triggered');
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Opened`;
+    setTimeout(() => {
+      btn.classList.remove('triggered');
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Open gate`;
+    }, 5000);
+
+    // Add to log
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    logEntries.unshift({ type: 'enroll', icon: '⊙', name: 'Admin', detail: `Manual override — ${reason}`, time });
+    renderLog();
+
+    showToast('🔓', `Gate open — closes in 5 seconds`);
+  }
+
+  // ── SIDEBAR TOGGLE ──
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('collapsed');
+    localStorage.setItem('tapify-sidebar', sidebar.classList.contains('collapsed') ? 'collapsed' : 'open');
+  }
+
+  // Restore saved sidebar state
+  if (localStorage.getItem('tapify-sidebar') === 'collapsed') {
+    document.querySelector('.sidebar').classList.add('collapsed');
+  }
+
+  // ── THEME TOGGLE ──
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    document.getElementById('theme-icon-moon').style.display = isLight ? 'none' : 'block';
+    document.getElementById('theme-icon-sun').style.display  = isLight ? 'block' : 'none';
+    localStorage.setItem('tapify-theme', isLight ? 'light' : 'dark');
+  }
+
+  // Restore saved theme
+  if (localStorage.getItem('tapify-theme') === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('theme-icon-moon').style.display = 'none';
+    document.getElementById('theme-icon-sun').style.display  = 'block';
+  }
+
+  // ── MOCK DATA ──
+  const members = [
+    { id: 1, name: 'Alice Martin',    key: 'a3f9b2c1d4e5...', expiry: '2026-09-01', status: 'active',    last: 'Today, 09:14' },
+    { id: 2, name: 'James Okafor',   key: 'b7e2a1f3c8d9...', expiry: '2026-07-15', status: 'active',    last: 'Today, 08:52' },
+    { id: 3, name: 'Sophie Chen',    key: 'c1d8e4f2a7b3...', expiry: '2026-06-30', status: 'active',    last: 'Yesterday' },
+    { id: 4, name: 'Marcus Webb',    key: 'd5f1b9e3c2a8...', expiry: '2026-05-01', status: 'suspended', last: '3 days ago' },
+  ];
+
+  const logEntries = [
+    { type: 'success', icon: '✓', name: 'Alice Martin',  detail: 'Access granted',  time: '09:14' },
+    { type: 'success', icon: '✓', name: 'James Okafor', detail: 'Access granted',  time: '08:52' },
+    { type: 'denied',  icon: '✕', name: 'Unknown',       detail: 'Auth failed — unknown key', time: '08:31' },
+    { type: 'success', icon: '✓', name: 'Alice Martin',  detail: 'Access granted',  time: 'Yesterday, 18:43' },
+    { type: 'success', icon: '✓', name: 'Sophie Chen',   detail: 'Access granted',  time: 'Yesterday, 11:20' },
+    { type: 'enroll',  icon: '⊕', name: 'Sophie Chen',   detail: 'Member enrolled', time: 'Yesterday, 11:18' },
+    { type: 'success', icon: '✓', name: 'James Okafor', detail: 'Access granted',  time: 'Yesterday, 09:05' },
+    { type: 'success', icon: '✓', name: 'Alice Martin',  detail: 'Access granted',  time: '2 days ago, 09:22' },
+  ];
+
+  // ── RENDER MEMBERS ──
+  function renderMembers(data) {
+    const tbody = document.getElementById('members-body');
+    tbody.innerHTML = '';
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">👥</div><p>No members enrolled yet.</p></div></td></tr>';
+      return;
+    }
+    data.forEach(m => {
+      const expDate = new Date(m.expiry);
+      const daysLeft = Math.ceil((expDate - new Date()) / 86400000);
+      const expiring = daysLeft <= 14 && daysLeft > 0 && m.status === 'active';
+      const expired  = daysLeft <= 0;
+
+      let statusBadge = '';
+      if (m.status === 'active' && !expired) {
+        statusBadge = expiring
+          ? `<span class="badge badge-yellow"><span class="badge-dot"></span>Expiring soon</span>`
+          : `<span class="badge badge-green"><span class="badge-dot"></span>Active</span>`;
+      } else if (m.status === 'suspended') {
+        statusBadge = `<span class="badge badge-red"><span class="badge-dot"></span>Suspended</span>`;
+      } else {
+        statusBadge = `<span class="badge badge-red"><span class="badge-dot"></span>Expired</span>`;
+      }
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="cell-name">${m.name}</td>
+        <td class="cell-key" title="${m.key}">${m.key}</td>
+        <td style="font-size:12px;color:var(--muted)">${m.expiry}</td>
+        <td>${statusBadge}</td>
+        <td style="font-size:12px;color:var(--muted)">${m.last}</td>
+        <td>
+          <div class="action-group">
+            <button class="btn btn-ghost btn-sm" onclick="openExtend(${m.id})">Extend</button>
+            ${m.status === 'active'
+              ? `<button class="btn btn-danger btn-sm" onclick="toggleStatus(${m.id})">Suspend</button>`
+              : `<button class="btn btn-ghost btn-sm" onclick="toggleStatus(${m.id})">Reinstate</button>`}
+          </div>
+        </td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  // ── RENDER LOG ──
+  function renderLog() {
+    const list = document.getElementById('log-list');
+    list.innerHTML = logEntries.map(e => `
+      <div class="log-item">
+        <div class="log-icon ${e.type}">${e.icon}</div>
+        <div>
+          <div class="log-name">${e.name}</div>
+          <div class="log-detail">${e.detail}</div>
+        </div>
+        <span class="badge ${e.type === 'success' ? 'badge-green' : e.type === 'denied' ? 'badge-red' : 'badge-blue'}">${e.type === 'success' ? 'Granted' : e.type === 'denied' ? 'Denied' : 'Enrolled'}</span>
+        <div class="log-time">${e.time}</div>
+      </div>`).join('');
+  }
+
+  // ── NAV ──
+  function navigate(page, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    el.classList.add('active');
+  }
+
+  // ── MODALS ──
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
+
+  // ── ENROLL ──
+  function openEnrollModal() {
+    document.getElementById('enroll-form').style.display = 'block';
+    document.getElementById('enroll-waiting').classList.remove('show');
+    // Set default expiry to 1 month from today
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    document.getElementById('enroll-expiry').value = d.toISOString().split('T')[0];
+    openModal('modal-enroll');
+  }
+
+  function startEnroll() {
+    const name = document.getElementById('enroll-name').value.trim();
+    if (!name) { document.getElementById('enroll-name').focus(); return; }
+    document.getElementById('enroll-form').style.display = 'none';
+    document.getElementById('enroll-waiting').classList.add('show');
+    document.getElementById('enroll-banner').classList.add('show');
+    // Simulate tap after 3s
+    setTimeout(() => {
+      const expiry = document.getElementById('enroll-expiry').value;
+      members.push({ id: members.length + 1, name, key: Math.random().toString(36).slice(2,14) + '...', expiry, status: 'active', last: 'Just now' });
+      document.getElementById('members-count').textContent = members.length;
+      renderMembers(members);
+      closeModal('modal-enroll');
+      document.getElementById('enroll-banner').classList.remove('show');
+      showToast('✅', `${name} enrolled successfully`);
+    }, 3000);
+  }
+
+  function cancelEnroll() {
+    closeModal('modal-enroll');
+    document.getElementById('enroll-banner').classList.remove('show');
+  }
+
+  // ── EXTEND ──
+  let extendId = null;
+  function openExtend(id) {
+    extendId = id;
+    const m = members.find(x => x.id === id);
+    document.getElementById('extend-member-name').textContent = m.name;
+    document.getElementById('extend-expiry').value = m.expiry;
+    openModal('modal-extend');
+  }
+
+  function confirmExtend() {
+    const m = members.find(x => x.id === extendId);
+    m.expiry = document.getElementById('extend-expiry').value;
+    renderMembers(members);
+    closeModal('modal-extend');
+    showToast('📅', `Membership extended for ${m.name}`);
+  }
+
+  // ── SUSPEND / REINSTATE ──
+  function toggleStatus(id) {
+    const m = members.find(x => x.id === id);
+    m.status = m.status === 'active' ? 'suspended' : 'active';
+    renderMembers(members);
+    showToast(m.status === 'suspended' ? '🔴' : '🟢', `${m.name} ${m.status === 'suspended' ? 'suspended' : 'reinstated'}`);
+  }
+
+  // ── SEARCH ──
+  function filterTable(q) {
+    const filtered = members.filter(m => m.name.toLowerCase().includes(q.toLowerCase()));
+    renderMembers(filtered);
+  }
+
+  // ── TOAST ──
+  let toastTimer;
+  function showToast(icon, msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-icon').textContent = icon;
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── UPTIME ──
+  let seconds = 0;
+  setInterval(() => {
+    seconds++;
+    const h = String(Math.floor(seconds / 3600)).padStart(2,'0');
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2,'0');
+    const s = String(seconds % 60).padStart(2,'0');
+    const el = document.getElementById('uptime');
+    if (el) el.textContent = `${h}:${m}:${s}`;
+  }, 1000);
+
+  // ── INIT ──
+  renderMembers(members);
+  renderLog();
+</script>
 </body>
-
 </html>

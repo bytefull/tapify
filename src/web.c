@@ -61,60 +61,6 @@ static struct http_resource_detail_static index_html_gz_resource_detail = {
 };
 HTTP_RESOURCE_DEFINE(index_html_gz_resource, web_service, "/", &index_html_gz_resource_detail);
 
-/* *************************** bootstrap.purged.min.css *************************** */
-static const uint8_t bootstrap_purged_min_css_gz[] = {
-#include "bootstrap.purged.min.css.gz.inc"
-};
-static struct http_resource_detail_static bootstrap_purged_min_css_gz_resource_detail = {
-	.common =
-		{
-			.type = HTTP_RESOURCE_TYPE_STATIC,
-			.bitmask_of_supported_http_methods = BIT(HTTP_GET),
-			.content_encoding = "gzip",
-			.content_type = "text/css",
-		},
-	.static_data = bootstrap_purged_min_css_gz,
-	.static_data_len = sizeof(bootstrap_purged_min_css_gz),
-};
-HTTP_RESOURCE_DEFINE(bootstrap_purged_min_css_gz_resource, web_service, "/bootstrap.purged.min.css",
-		     &bootstrap_purged_min_css_gz_resource_detail);
-
-/* *************************** style.css *************************** */
-static const uint8_t style_css_gz[] = {
-#include "style.css.gz.inc"
-};
-static struct http_resource_detail_static style_css_gz_resource_detail = {
-	.common =
-		{
-			.type = HTTP_RESOURCE_TYPE_STATIC,
-			.bitmask_of_supported_http_methods = BIT(HTTP_GET),
-			.content_encoding = "gzip",
-			.content_type = "text/css",
-		},
-	.static_data = style_css_gz,
-	.static_data_len = sizeof(style_css_gz),
-};
-HTTP_RESOURCE_DEFINE(style_css_gz_resource, web_service, "/style.css",
-		     &style_css_gz_resource_detail);
-
-/* *************************** script.js *************************** */
-static const uint8_t script_js_gz[] = {
-#include "script.js.gz.inc"
-};
-static struct http_resource_detail_static script_js_gz_resource_detail = {
-	.common =
-		{
-			.type = HTTP_RESOURCE_TYPE_STATIC,
-			.bitmask_of_supported_http_methods = BIT(HTTP_GET),
-			.content_encoding = "gzip",
-			.content_type = "application/javascript",
-		},
-	.static_data = script_js_gz,
-	.static_data_len = sizeof(script_js_gz),
-};
-HTTP_RESOURCE_DEFINE(script_js_gz_resource, web_service, "/script.js",
-		     &script_js_gz_resource_detail);
-
 /* *************************** json data *************************** */
 static struct http_resource_detail_static json_message_resource_detail = {
 	.common =

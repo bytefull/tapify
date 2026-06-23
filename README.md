@@ -3,10 +3,8 @@
 ## Using host file system with native_sim
 
 ```bash
-/workdir/application$ rm -rf /tmp/zephyr_settings
+/workdir/application$ rm -rf build/ flash.bin /tmp/zephyr_settings
 /workdir/application$ mkdir -p /tmp/zephyr_settings
-/workdir/application$ rm -rf build/
-/workdir/application$ rm -rf flash.bin
 /workdir/application$ west build -b native_sim -d build/
 /workdir/application$ ./build/zephyr/zephyr.exe -volume=/tmp/zephyr_settings:/settings
 ```

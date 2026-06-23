@@ -248,6 +248,12 @@ static enum smf_state_result state_normal_run(void *obj)
 	switch (object->event.id) {
 	case EVENT_BUTTON_LONG_PRESS:
 		LOG_INF("EVENT_BUTTON_LONG_PRESS");
+		device_is_provisioned = false;
+		ret = settings_save_one(APP_SETTINGS_PROV_KEY, &device_is_provisioned, sizeof(device_is_provisioned));
+		if (ret) {
+			LOG_ERR("settings save failed (%d)", ret);
+		}
+
 		smf_set_state(SMF_CTX(object), &app_states[STATE_UNPROVISIONED]);
 		ret = SMF_EVENT_HANDLED;
 		break;
